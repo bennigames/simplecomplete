@@ -1,0 +1,22 @@
+$spacer: 1em !default;
+
+$black: #111111 !default;
+$white: #FFFFFF !default;
+$gray: #DDDDDD !default;
+$light-gray: #EFEFEF !default;
+$yellow: #FFFE47 !default;
+
+$primary: #FF64B1 !default;
+$secondary: #EFEFEF !default;
+
+$text: $black !default;
+$text-secondary: #BBBBBB !default;
+
+$default-shadow: rgba(0,0,0,.3);
+
+$border-default: solid 0.125 * $spacer $default-shadow !default;
+$border-default-transparent: solid 0.0625 * $spacer transparent !default;
+$border-radius: .5em !default;
+
+$padding: $spacer * .5 $spacer * .75 !default;
+

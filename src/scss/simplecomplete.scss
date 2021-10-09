@@ -1,0 +1,354 @@
+@use "sass:math";
+@import 'variables';
+
+@keyframes pulsingAnim {
+	0% {
+		opacity: .6;
+	}
+
+	50% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: .6;
+	}
+}
+
+@keyframes scrollingBg {
+	0% {
+		background-position: 0 0;
+	}
+
+	100% {
+		background-position: -100% 0;
+	}
+}
+
+@keyframes highlightAnim {
+	0% {
+		background: $white;
+	}
+
+	15% {
+		background: $primary;
+	}
+
+	30% {
+		background: $white;
+	}
+
+	50% {
+		background: $primary;
+	}
+
+	100% {
+		background: inherit;
+	}
+}
+
+.simplecomplete {
+	position: relative;
+	border: $border-default;
+	border-radius: $border-radius;
+	background: linear-gradient(90deg, $white 0, $white 100%);
+	box-sizing: border-box;
+	transition: background 3s;
+
+	* {
+		box-sizing: border-box;
+	}
+
+	&__input {
+		display: flex;
+		flex-flow: row nowrap;
+		&-field {
+			flex: 1;
+			background: white;
+			padding: $padding;
+			overflow-x: auto;
+			white-space: nowrap;
+			border: $border-default-transparent;
+			border-radius: $border-radius * .8;
+			outline: none;
+			margin: .125em;
+
+			@media screen and (max-width: 992px) {
+				border-radius: 0;
+			}
+		}
+
+		&-cancel {
+			position: absolute;
+			top: 50%;
+			right: 0;
+			width: 2em;
+			transform: translateY(-50%);
+			text-align: center;
+			font-size: 2em;
+			cursor: pointer;
+
+			&:after {
+				display: inline-block;
+				content: "\00D7";
+				color: darken($gray, 20);
+			}
+
+			@media screen and (max-width: 992px) {
+				position: relative;
+				display: flex;
+				flex-flow: column;
+				justify-content: center;
+				align-items: center;
+				transform: none;
+				top: auto;
+				right: auto;
+
+				background: $white;
+
+				&:after {
+					display: block;
+					padding: 0 $spacer;
+					color: $gray;
+				}
+			}
+		}
+	}
+
+	&__value {
+		@extend .simplecomplete__input-field;
+		&:not(.hide) {
+			& ~ .simplecomplete__input {
+				display: none;
+			}
+		}
+
+		> .selected-option, > .empty-item {
+			display: inline-block;
+			cursor: pointer;
+			padding: $padding;
+			margin: 0 .125em;
+			background: $light-gray;
+			color: $text-secondary;
+			font-weight: 500;
+			border-radius: $border-radius;
+			border: $border-default-transparent;
+			background: $gray;
+			color: $black;
+
+			&:first-child {
+				margin-left: -.25em;
+			}
+
+			&:last-child {
+				margin-right: -.25em;
+			}
+		}
+
+		> .empty-item {
+			background: $white;
+			color: $text-secondary;
+			font-weight: 400;
+		}
+
+		&.is-empty {
+			color: $text-secondary;
+		}
+	}
+
+	&.is-multiple, &.is-blankable {
+		.simplecomplete__value > .selected-option {
+			&:after {
+				content: "\00D7";
+				display: inline;
+				margin-left: .25em;
+				color: darken($text-secondary, 20);
+			}
+		}
+
+		.simplecomplete__input-cancel {
+			display: block;
+		}
+	}
+
+	&__results {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		max-width: 100%;
+		background: $white;
+		box-shadow: 0 .125em .25em 0 lighten($black, 60);
+		z-index: 255;
+
+		border-radius: $border-radius;
+
+		@media screen and (max-width: 992px) {
+			position: relative;
+			top: 0;
+			flex: 1;
+			overflow-y: auto;
+			background: $white;
+			box-shadow: none;
+			border-radius: 0;
+		}
+
+		&-list {
+			border-radius: $border-radius;
+			overflow: hidden;
+			overflow-y: auto;
+			max-height: 30vh;
+			padding: $spacer * .5;
+			&-item, &-empty {
+				cursor: pointer;
+				display: block;
+				padding: $spacer * .5 $spacer;
+				color: $text-secondary;
+				font-weight: 500;
+				&:not(:last-child) {
+					border-bottom: solid 1px lighten($black, 90);
+				}
+
+				&:hover {
+					color: $black;
+				}
+
+				> .highlight {
+					display: inline;
+					color: $primary;
+					border-radius: $border-radius;
+				}
+
+				&.selected {
+					font-weight: 500;
+					background: $primary;
+					color: $white;
+					border-radius: $border-radius;
+
+					&:hover {
+						background: darken($primary, 10);
+						color: $white;
+					}
+
+					> .highlight {
+						color: $text;
+						background: $yellow;
+						padding: $spacer * .125 $spacer * .25;
+						margin: -$spacer * .125 0;
+					}
+				}
+
+				&.disabled {
+					border-radius: $border-radius;
+					background: $light-gray;
+					font-style: italic;
+				}
+			}
+
+			@media screen and (max-width: 992px) {
+				max-height: none;
+			}
+		}
+	}
+
+	.hide {
+		display: none;
+	}
+
+	&.is-blankable:not(.active) {
+		.simplecomplete__value > .selected-option {
+			&:after {
+				display: none;
+			}
+		}
+	}
+
+	&.active:not(.is-select) {
+		.simplecomplete__results {
+			display: block;
+		}
+	}
+
+	&.active.is-select, &:not(.is-select) {
+		.simplecomplete__input-field {
+			padding: $spacer * 1.05;
+		}
+	}
+
+	&.inline {
+		display: inline-block;
+	}
+
+	&.active {
+		border-color: $primary;
+		@media screen and (max-width: 992px) {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			border-color: transparent;
+			display: flex;
+			flex-flow: column nowrap;
+			background: $gray;
+			z-index: 255;
+			border-radius: 0;
+			border: none;
+		}
+
+		.simplecomplete__input {
+			@media screen and (max-width: 992px) {
+				animation-name: highlightAnim;
+				animation-duration: 1.3s;
+				animation-timing-function: ease-in-out;
+				animation-iteration-count: 1;
+			}
+		}
+	}
+
+	&.is-busy {
+		border-color: rgba(255,255,255,.6);
+		background: $primary;
+		background: linear-gradient(90deg, lighten(red, 30) 0%, lighten(yellow, 30) 25%, lighten(green, 30) 50%, lighten(blue, 30) 75%, lighten(red, 30) 100%);
+		background-size: 10vw 10vw;
+		animation-name: scrollingBg;
+		animation-iteration-count: infinite;
+		animation-duration: 3s;
+		animation-timing-function: linear;
+
+		.simplecomplete__input-field {
+			border-color: $primary;
+		}
+
+		.simplecomplete__results-list {
+			padding-top: 1em;
+			&-empty {
+				display: none;
+			}
+
+			&:before, &:after {
+				display: block;
+				content: "";
+				border-radius: $border-radius;
+				height: 1.2em;
+				background: $light-gray;
+				width: 80%;
+				margin: 0 1em;
+				animation-name: pulsingAnim;
+				animation-iteration-count: infinite;
+				animation-duration: .8s;
+				animation-timing-function: linear;
+			}
+
+			&:after {
+				width: 60%;
+				margin-top: .6em;
+			}
+		}
+	}
+
+	&:not(.has-results) {
+		.simplecomplete__results {
+			display: none;
+		}
+	}
+}
