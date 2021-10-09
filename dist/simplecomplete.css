@@ -1,0 +1,293 @@
+@charset "UTF-8";
+@keyframes pulsingAnim {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+@keyframes scrollingBg {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+@keyframes highlightAnim {
+  0% {
+    background: #FFFFFF;
+  }
+  15% {
+    background: #FF64B1;
+  }
+  30% {
+    background: #FFFFFF;
+  }
+  50% {
+    background: #FF64B1;
+  }
+  100% {
+    background: inherit;
+  }
+}
+.simplecomplete {
+  position: relative;
+  border: solid 0.125em rgba(0, 0, 0, 0.3);
+  border-radius: 0.5em;
+  background: linear-gradient(90deg, #FFFFFF 0, #FFFFFF 100%);
+  box-sizing: border-box;
+  transition: background 3s;
+}
+.simplecomplete * {
+  box-sizing: border-box;
+}
+.simplecomplete__input {
+  display: flex;
+  flex-flow: row nowrap;
+}
+.simplecomplete__input-field, .simplecomplete__value {
+  flex: 1;
+  background: white;
+  padding: 0.5em 0.75em;
+  overflow-x: auto;
+  white-space: nowrap;
+  border: solid 0.0625em transparent;
+  border-radius: 0.4em;
+  outline: none;
+  margin: 0.125em;
+}
+@media screen and (max-width: 992px) {
+  .simplecomplete__input-field, .simplecomplete__value {
+    border-radius: 0;
+  }
+}
+.simplecomplete__input-cancel {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 2em;
+  transform: translateY(-50%);
+  text-align: center;
+  font-size: 2em;
+  cursor: pointer;
+}
+.simplecomplete__input-cancel:after {
+  display: inline-block;
+  content: "×";
+  color: #aaaaaa;
+}
+@media screen and (max-width: 992px) {
+  .simplecomplete__input-cancel {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    transform: none;
+    top: auto;
+    right: auto;
+    background: #FFFFFF;
+  }
+  .simplecomplete__input-cancel:after {
+    display: block;
+    padding: 0 1em;
+    color: #DDDDDD;
+  }
+}
+.simplecomplete__value:not(.hide) ~ .simplecomplete__input {
+  display: none;
+}
+.simplecomplete__value > .selected-option, .simplecomplete__value > .empty-item {
+  display: inline-block;
+  cursor: pointer;
+  padding: 0.5em 0.75em;
+  margin: 0 0.125em;
+  background: #EFEFEF;
+  color: #BBBBBB;
+  font-weight: 500;
+  border-radius: 0.5em;
+  border: solid 0.0625em transparent;
+  background: #DDDDDD;
+  color: #111111;
+}
+.simplecomplete__value > .selected-option:first-child, .simplecomplete__value > .empty-item:first-child {
+  margin-left: -0.25em;
+}
+.simplecomplete__value > .selected-option:last-child, .simplecomplete__value > .empty-item:last-child {
+  margin-right: -0.25em;
+}
+.simplecomplete__value > .empty-item {
+  background: #FFFFFF;
+  color: #BBBBBB;
+  font-weight: 400;
+}
+.simplecomplete__value.is-empty {
+  color: #BBBBBB;
+}
+.simplecomplete.is-multiple .simplecomplete__value > .selected-option:after, .simplecomplete.is-blankable .simplecomplete__value > .selected-option:after {
+  content: "×";
+  display: inline;
+  margin-left: 0.25em;
+  color: #888888;
+}
+.simplecomplete.is-multiple .simplecomplete__input-cancel, .simplecomplete.is-blankable .simplecomplete__input-cancel {
+  display: block;
+}
+.simplecomplete__results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  max-width: 100%;
+  background: #FFFFFF;
+  box-shadow: 0 0.125em 0.25em 0 #aaaaaa;
+  z-index: 255;
+  border-radius: 0.5em;
+}
+@media screen and (max-width: 992px) {
+  .simplecomplete__results {
+    position: relative;
+    top: 0;
+    flex: 1;
+    overflow-y: auto;
+    background: #FFFFFF;
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+.simplecomplete__results-list {
+  border-radius: 0.5em;
+  overflow: hidden;
+  overflow-y: auto;
+  max-height: 30vh;
+  padding: 0.5em;
+}
+.simplecomplete__results-list-item, .simplecomplete__results-list-empty {
+  cursor: pointer;
+  display: block;
+  padding: 0.5em 1em;
+  color: #BBBBBB;
+  font-weight: 500;
+}
+.simplecomplete__results-list-item:not(:last-child), .simplecomplete__results-list-empty:not(:last-child) {
+  border-bottom: solid 1px #f7f7f7;
+}
+.simplecomplete__results-list-item:hover, .simplecomplete__results-list-empty:hover {
+  color: #111111;
+}
+.simplecomplete__results-list-item > .highlight, .simplecomplete__results-list-empty > .highlight {
+  display: inline;
+  color: #FF64B1;
+  border-radius: 0.5em;
+}
+.simplecomplete__results-list-item.selected, .simplecomplete__results-list-empty.selected {
+  font-weight: 500;
+  background: #FF64B1;
+  color: #FFFFFF;
+  border-radius: 0.5em;
+}
+.simplecomplete__results-list-item.selected:hover, .simplecomplete__results-list-empty.selected:hover {
+  background: #ff3197;
+  color: #FFFFFF;
+}
+.simplecomplete__results-list-item.selected > .highlight, .simplecomplete__results-list-empty.selected > .highlight {
+  color: #111111;
+  background: #FFFE47;
+  padding: 0.125em 0.25em;
+  margin: -0.125em 0;
+}
+.simplecomplete__results-list-item.disabled, .simplecomplete__results-list-empty.disabled {
+  border-radius: 0.5em;
+  background: #EFEFEF;
+  font-style: italic;
+}
+@media screen and (max-width: 992px) {
+  .simplecomplete__results-list {
+    max-height: none;
+  }
+}
+.simplecomplete .hide {
+  display: none;
+}
+.simplecomplete.is-blankable:not(.active) .simplecomplete__value > .selected-option:after {
+  display: none;
+}
+.simplecomplete.active:not(.is-select) .simplecomplete__results {
+  display: block;
+}
+.simplecomplete.active.is-select .simplecomplete__input-field, .simplecomplete.active.is-select .simplecomplete__value, .simplecomplete:not(.is-select) .simplecomplete__input-field, .simplecomplete:not(.is-select) .simplecomplete__value {
+  padding: 1.05em;
+}
+.simplecomplete.inline {
+  display: inline-block;
+}
+.simplecomplete.active {
+  border-color: #FF64B1;
+}
+@media screen and (max-width: 992px) {
+  .simplecomplete.active {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    border-color: transparent;
+    display: flex;
+    flex-flow: column nowrap;
+    background: #DDDDDD;
+    z-index: 255;
+    border-radius: 0;
+    border: none;
+  }
+}
+@media screen and (max-width: 992px) {
+  .simplecomplete.active .simplecomplete__input {
+    animation-name: highlightAnim;
+    animation-duration: 1.3s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: 1;
+  }
+}
+.simplecomplete.is-busy {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: #FF64B1;
+  background: linear-gradient(90deg, #ff9999 0%, #ffff99 25%, #1aff1a 50%, #9999ff 75%, #ff9999 100%);
+  background-size: 10vw 10vw;
+  animation-name: scrollingBg;
+  animation-iteration-count: infinite;
+  animation-duration: 3s;
+  animation-timing-function: linear;
+}
+.simplecomplete.is-busy .simplecomplete__input-field, .simplecomplete.is-busy .simplecomplete__value {
+  border-color: #FF64B1;
+}
+.simplecomplete.is-busy .simplecomplete__results-list {
+  padding-top: 1em;
+}
+.simplecomplete.is-busy .simplecomplete__results-list-empty {
+  display: none;
+}
+.simplecomplete.is-busy .simplecomplete__results-list:before, .simplecomplete.is-busy .simplecomplete__results-list:after {
+  display: block;
+  content: "";
+  border-radius: 0.5em;
+  height: 1.2em;
+  background: #EFEFEF;
+  width: 80%;
+  margin: 0 1em;
+  animation-name: pulsingAnim;
+  animation-iteration-count: infinite;
+  animation-duration: 0.8s;
+  animation-timing-function: linear;
+}
+.simplecomplete.is-busy .simplecomplete__results-list:after {
+  width: 60%;
+  margin-top: 0.6em;
+}
+.simplecomplete:not(.has-results) .simplecomplete__results {
+  display: none;
+}

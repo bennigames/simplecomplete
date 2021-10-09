@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>🦄 simplecomplete 👌</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="./simplecomplete.js"></script>
+	<link rel="stylesheet" href="./min/simplecomplete.min.css" />
+	<style type="text/css">
+		@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
+		html,body {
+			font-family: 'Roboto', sans-serif;
+			font-weight:  400;
+			min-width:  100vw;
+			max-width:  100vw;
+			min-height:  100vh;
+			max-height:  100vh;
+			overflow:  hidden;
+			padding:  0;
+			margin:  0;
+			box-sizing:  border-box;
+		}
+
+		body {
+			display:  flex;
+			flex-flow:  column nowrap;
+			justify-content:  center;
+			align-items:  center;
+			background:  #F6F6F6;
+			overflow-y:  auto;
+		}
+
+		h1 {
+
+		}
+
+		#wrapper {
+			width:  80vw;
+			background:  white;
+			padding:  2rem;
+			border-radius:  1em;
+			box-shadow:  0 .125em .25em rgba(0,0,0,.1);
+		}
+	</style>
+</head>
+<body>
+	<div id="wrapper">
+		<h1>🚀 <em>simplecomplete</em> becomes a <u>simple👌</u> yet <u>powerful 💪</u> and <u>versatile 🦄</u> js library for search elements</h1>
+		<h2>Just a search... but cool.</h2>
+		<input type="text" data-sc="http://google.de" placeholder="" />
+
+		<h2>I just found out i don't know shit about animes</h2>
+		<select data-sc="http">
+			<option value="ajin" selected>Ajin</option>
+			<option value="slump">Dr. Slump</option>
+			<option value="chobits">Chobits</option>
+			<option value="seven-deadly-sins">Seven Deadly Sins</option>
+			<option value="db">Dragon Ball</option>
+			<option value="dbz">Dragon Ball Z</option>
+			<option value="dbgt" disabled>Dragon Ball GT</option>
+			<option value="dbsuper">Dragon Ball Super</option>
+			<option value="nge">Neon Genesis Evangelion</option>
+			<option value="naruto">Naruto</option>
+		</select>
+
+		<h2>Hello World...</h2>
+		<select multiple="true" id="multiple-select" data-sc>
+			<option>Option A</option>
+			<option selected>Option B</option>
+			<option selected>Option C</option>
+		</select>
+	</div>
+</body>
+</html>
