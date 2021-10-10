@@ -97,6 +97,17 @@ module.exports = function (S, index, unicode) {
 
 /***/ }),
 
+/***/ 787:
+/***/ (function(module) {
+
+module.exports = function (it, Constructor, name) {
+  if (it instanceof Constructor) return it;
+  throw TypeError('Incorrect ' + (name ? name + ' ' : '') + 'invocation');
+};
+
+
+/***/ }),
+
 /***/ 9670:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
@@ -511,6 +522,28 @@ module.exports = function (target, source) {
     var key = keys[i];
     if (!hasOwn(target, key)) defineProperty(target, key, getOwnPropertyDescriptor(source, key));
   }
+};
+
+
+/***/ }),
+
+/***/ 964:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+var wellKnownSymbol = __webpack_require__(5112);
+
+var MATCH = wellKnownSymbol('match');
+
+module.exports = function (METHOD_NAME) {
+  var regexp = /./;
+  try {
+    '/./'[METHOD_NAME](regexp);
+  } catch (error1) {
+    try {
+      regexp[MATCH] = false;
+      return '/./'[METHOD_NAME](regexp);
+    } catch (error2) { /* empty */ }
+  } return false;
 };
 
 
@@ -1665,6 +1698,46 @@ module.exports = !!Object.getOwnPropertySymbols && !fails(function () {
 
 /***/ }),
 
+/***/ 590:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+var fails = __webpack_require__(7293);
+var wellKnownSymbol = __webpack_require__(5112);
+var IS_PURE = __webpack_require__(1913);
+
+var ITERATOR = wellKnownSymbol('iterator');
+
+module.exports = !fails(function () {
+  var url = new URL('b?a=1&b=2&c=3', 'http://a');
+  var searchParams = url.searchParams;
+  var result = '';
+  url.pathname = 'c%20d';
+  searchParams.forEach(function (value, key) {
+    searchParams['delete']('b');
+    result += key + value;
+  });
+  return (IS_PURE && !url.toJSON)
+    || !searchParams.sort
+    || url.href !== 'http://a/c%20d?a=1&c=3'
+    || searchParams.get('c') !== '3'
+    || String(new URLSearchParams('?a=1')) !== 'a=1'
+    || !searchParams[ITERATOR]
+    // throws in Edge
+    || new URL('https://a@b').username !== 'a'
+    || new URLSearchParams(new URLSearchParams('a=b')).get('a') !== 'b'
+    // not punycoded in Edge
+    || new URL('http://тест').host !== 'xn--e1aybc'
+    // not escaped in Chrome 62-
+    || new URL('http://a#б').hash !== '#%D0%B1'
+    // fails in Chrome 66-
+    || result !== 'a1c3'
+    // throws in Safari
+    || new URL('http://x', undefined).host !== 'x';
+});
+
+
+/***/ }),
+
 /***/ 8536:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
@@ -1675,6 +1748,20 @@ var inspectSource = __webpack_require__(2788);
 var WeakMap = global.WeakMap;
 
 module.exports = isCallable(WeakMap) && /native code/.test(inspectSource(WeakMap));
+
+
+/***/ }),
+
+/***/ 929:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+var isRegExp = __webpack_require__(7850);
+
+module.exports = function (it) {
+  if (isRegExp(it)) {
+    throw TypeError("The method doesn't accept regular expressions");
+  } return it;
+};
 
 
 /***/ }),
@@ -2087,6 +2174,19 @@ module.exports = getBuiltIn('Reflect', 'ownKeys') || function ownKeys(it) {
 var global = __webpack_require__(7854);
 
 module.exports = global;
+
+
+/***/ }),
+
+/***/ 248:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+var redefine = __webpack_require__(1320);
+
+module.exports = function (target, src, options) {
+  for (var key in src) redefine(target, key, src[key], options);
+  return target;
+};
 
 
 /***/ }),
@@ -2891,6 +2991,29 @@ $({ target: 'Array', stat: true, forced: INCORRECT_ITERATION }, {
 
 /***/ }),
 
+/***/ 699:
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__(2109);
+var $includes = __webpack_require__(1318).includes;
+var addToUnscopables = __webpack_require__(1223);
+
+// `Array.prototype.includes` method
+// https://tc39.es/ecma262/#sec-array.prototype.includes
+$({ target: 'Array', proto: true }, {
+  includes: function includes(el /* , fromIndex = 0 */) {
+    return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
+  }
+});
+
+// https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+addToUnscopables('includes');
+
+
+/***/ }),
+
 /***/ 6992:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
@@ -2972,6 +3095,29 @@ var STRICT_METHOD = arrayMethodIsStrict('join', ',');
 $({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD }, {
   join: function join(separator) {
     return nativeJoin.call(toIndexedObject(this), separator === undefined ? ',' : separator);
+  }
+});
+
+
+/***/ }),
+
+/***/ 249:
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__(2109);
+var $map = __webpack_require__(2092).map;
+var arrayMethodHasSpeciesSupport = __webpack_require__(1194);
+
+var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('map');
+
+// `Array.prototype.map` method
+// https://tc39.es/ecma262/#sec-array.prototype.map
+// with adding support of @@species
+$({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
+  map: function map(callbackfn /* , thisArg */) {
+    return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
   }
 });
 
@@ -3399,6 +3545,29 @@ if (NOT_GENERIC || INCORRECT_NAME) {
     return '/' + p + '/' + f;
   }, { unsafe: true });
 }
+
+
+/***/ }),
+
+/***/ 23:
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__(2109);
+var notARegExp = __webpack_require__(929);
+var requireObjectCoercible = __webpack_require__(4488);
+var toString = __webpack_require__(1340);
+var correctIsRegExpLogic = __webpack_require__(964);
+
+// `String.prototype.includes` method
+// https://tc39.es/ecma262/#sec-string.prototype.includes
+$({ target: 'String', proto: true, forced: !correctIsRegExpLogic('includes') }, {
+  includes: function includes(searchString /* , position = 0 */) {
+    return !!~toString(requireObjectCoercible(this))
+      .indexOf(toString(notARegExp(searchString)), arguments.length > 1 ? arguments[1] : undefined);
+  }
+});
 
 
 /***/ }),
@@ -4188,6 +4357,382 @@ for (var COLLECTION_NAME in DOMIterables) {
 handlePrototype(DOMTokenListPrototype, 'DOMTokenList');
 
 
+/***/ }),
+
+/***/ 637:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+// TODO: in core-js@4, move /modules/ dependencies to public entries for better optimization by tools like `preset-env`
+__webpack_require__(6992);
+var $ = __webpack_require__(2109);
+var getBuiltIn = __webpack_require__(5005);
+var USE_NATIVE_URL = __webpack_require__(590);
+var redefine = __webpack_require__(1320);
+var redefineAll = __webpack_require__(248);
+var setToStringTag = __webpack_require__(8003);
+var createIteratorConstructor = __webpack_require__(4994);
+var InternalStateModule = __webpack_require__(9909);
+var anInstance = __webpack_require__(787);
+var isCallable = __webpack_require__(614);
+var hasOwn = __webpack_require__(2597);
+var bind = __webpack_require__(9974);
+var classof = __webpack_require__(648);
+var anObject = __webpack_require__(9670);
+var isObject = __webpack_require__(111);
+var $toString = __webpack_require__(1340);
+var create = __webpack_require__(30);
+var createPropertyDescriptor = __webpack_require__(9114);
+var getIterator = __webpack_require__(8554);
+var getIteratorMethod = __webpack_require__(1246);
+var wellKnownSymbol = __webpack_require__(5112);
+
+var nativeFetch = getBuiltIn('fetch');
+var NativeRequest = getBuiltIn('Request');
+var RequestPrototype = NativeRequest && NativeRequest.prototype;
+var Headers = getBuiltIn('Headers');
+var ITERATOR = wellKnownSymbol('iterator');
+var URL_SEARCH_PARAMS = 'URLSearchParams';
+var URL_SEARCH_PARAMS_ITERATOR = URL_SEARCH_PARAMS + 'Iterator';
+var setInternalState = InternalStateModule.set;
+var getInternalParamsState = InternalStateModule.getterFor(URL_SEARCH_PARAMS);
+var getInternalIteratorState = InternalStateModule.getterFor(URL_SEARCH_PARAMS_ITERATOR);
+
+var plus = /\+/g;
+var sequences = Array(4);
+
+var percentSequence = function (bytes) {
+  return sequences[bytes - 1] || (sequences[bytes - 1] = RegExp('((?:%[\\da-f]{2}){' + bytes + '})', 'gi'));
+};
+
+var percentDecode = function (sequence) {
+  try {
+    return decodeURIComponent(sequence);
+  } catch (error) {
+    return sequence;
+  }
+};
+
+var deserialize = function (it) {
+  var result = it.replace(plus, ' ');
+  var bytes = 4;
+  try {
+    return decodeURIComponent(result);
+  } catch (error) {
+    while (bytes) {
+      result = result.replace(percentSequence(bytes--), percentDecode);
+    }
+    return result;
+  }
+};
+
+var find = /[!'()~]|%20/g;
+
+var replace = {
+  '!': '%21',
+  "'": '%27',
+  '(': '%28',
+  ')': '%29',
+  '~': '%7E',
+  '%20': '+'
+};
+
+var replacer = function (match) {
+  return replace[match];
+};
+
+var serialize = function (it) {
+  return encodeURIComponent(it).replace(find, replacer);
+};
+
+var parseSearchParams = function (result, query) {
+  if (query) {
+    var attributes = query.split('&');
+    var index = 0;
+    var attribute, entry;
+    while (index < attributes.length) {
+      attribute = attributes[index++];
+      if (attribute.length) {
+        entry = attribute.split('=');
+        result.push({
+          key: deserialize(entry.shift()),
+          value: deserialize(entry.join('='))
+        });
+      }
+    }
+  }
+};
+
+var updateSearchParams = function (query) {
+  this.entries.length = 0;
+  parseSearchParams(this.entries, query);
+};
+
+var validateArgumentsLength = function (passed, required) {
+  if (passed < required) throw TypeError('Not enough arguments');
+};
+
+var URLSearchParamsIterator = createIteratorConstructor(function Iterator(params, kind) {
+  setInternalState(this, {
+    type: URL_SEARCH_PARAMS_ITERATOR,
+    iterator: getIterator(getInternalParamsState(params).entries),
+    kind: kind
+  });
+}, 'Iterator', function next() {
+  var state = getInternalIteratorState(this);
+  var kind = state.kind;
+  var step = state.iterator.next();
+  var entry = step.value;
+  if (!step.done) {
+    step.value = kind === 'keys' ? entry.key : kind === 'values' ? entry.value : [entry.key, entry.value];
+  } return step;
+});
+
+// `URLSearchParams` constructor
+// https://url.spec.whatwg.org/#interface-urlsearchparams
+var URLSearchParamsConstructor = function URLSearchParams(/* init */) {
+  anInstance(this, URLSearchParamsConstructor, URL_SEARCH_PARAMS);
+  var init = arguments.length > 0 ? arguments[0] : undefined;
+  var that = this;
+  var entries = [];
+  var iteratorMethod, iterator, next, step, entryIterator, entryNext, first, second, key;
+
+  setInternalState(that, {
+    type: URL_SEARCH_PARAMS,
+    entries: entries,
+    updateURL: function () { /* empty */ },
+    updateSearchParams: updateSearchParams
+  });
+
+  if (init !== undefined) {
+    if (isObject(init)) {
+      iteratorMethod = getIteratorMethod(init);
+      if (iteratorMethod) {
+        iterator = getIterator(init, iteratorMethod);
+        next = iterator.next;
+        while (!(step = next.call(iterator)).done) {
+          entryIterator = getIterator(anObject(step.value));
+          entryNext = entryIterator.next;
+          if (
+            (first = entryNext.call(entryIterator)).done ||
+            (second = entryNext.call(entryIterator)).done ||
+            !entryNext.call(entryIterator).done
+          ) throw TypeError('Expected sequence with length 2');
+          entries.push({ key: $toString(first.value), value: $toString(second.value) });
+        }
+      } else for (key in init) if (hasOwn(init, key)) entries.push({ key: key, value: $toString(init[key]) });
+    } else {
+      parseSearchParams(
+        entries,
+        typeof init === 'string' ? init.charAt(0) === '?' ? init.slice(1) : init : $toString(init)
+      );
+    }
+  }
+};
+
+var URLSearchParamsPrototype = URLSearchParamsConstructor.prototype;
+
+redefineAll(URLSearchParamsPrototype, {
+  // `URLSearchParams.prototype.append` method
+  // https://url.spec.whatwg.org/#dom-urlsearchparams-append
+  append: function append(name, value) {
+    validateArgumentsLength(arguments.length, 2);
+    var state = getInternalParamsState(this);
+    state.entries.push({ key: $toString(name), value: $toString(value) });
+    state.updateURL();
+  },
+  // `URLSearchParams.prototype.delete` method
+  // https://url.spec.whatwg.org/#dom-urlsearchparams-delete
+  'delete': function (name) {
+    validateArgumentsLength(arguments.length, 1);
+    var state = getInternalParamsState(this);
+    var entries = state.entries;
+    var key = $toString(name);
+    var index = 0;
+    while (index < entries.length) {
+      if (entries[index].key === key) entries.splice(index, 1);
+      else index++;
+    }
+    state.updateURL();
+  },
+  // `URLSearchParams.prototype.get` method
+  // https://url.spec.whatwg.org/#dom-urlsearchparams-get
+  get: function get(name) {
+    validateArgumentsLength(arguments.length, 1);
+    var entries = getInternalParamsState(this).entries;
+    var key = $toString(name);
+    var index = 0;
+    for (; index < entries.length; index++) {
+      if (entries[index].key === key) return entries[index].value;
+    }
+    return null;
+  },
+  // `URLSearchParams.prototype.getAll` method
+  // https://url.spec.whatwg.org/#dom-urlsearchparams-getall
+  getAll: function getAll(name) {
+    validateArgumentsLength(arguments.length, 1);
+    var entries = getInternalParamsState(this).entries;
+    var key = $toString(name);
+    var result = [];
+    var index = 0;
+    for (; index < entries.length; index++) {
+      if (entries[index].key === key) result.push(entries[index].value);
+    }
+    return result;
+  },
+  // `URLSearchParams.prototype.has` method
+  // https://url.spec.whatwg.org/#dom-urlsearchparams-has
+  has: function has(name) {
+    validateArgumentsLength(arguments.length, 1);
+    var entries = getInternalParamsState(this).entries;
+    var key = $toString(name);
+    var index = 0;
+    while (index < entries.length) {
+      if (entries[index++].key === key) return true;
+    }
+    return false;
+  },
+  // `URLSearchParams.prototype.set` method
+  // https://url.spec.whatwg.org/#dom-urlsearchparams-set
+  set: function set(name, value) {
+    validateArgumentsLength(arguments.length, 1);
+    var state = getInternalParamsState(this);
+    var entries = state.entries;
+    var found = false;
+    var key = $toString(name);
+    var val = $toString(value);
+    var index = 0;
+    var entry;
+    for (; index < entries.length; index++) {
+      entry = entries[index];
+      if (entry.key === key) {
+        if (found) entries.splice(index--, 1);
+        else {
+          found = true;
+          entry.value = val;
+        }
+      }
+    }
+    if (!found) entries.push({ key: key, value: val });
+    state.updateURL();
+  },
+  // `URLSearchParams.prototype.sort` method
+  // https://url.spec.whatwg.org/#dom-urlsearchparams-sort
+  sort: function sort() {
+    var state = getInternalParamsState(this);
+    var entries = state.entries;
+    // Array#sort is not stable in some engines
+    var slice = entries.slice();
+    var entry, entriesIndex, sliceIndex;
+    entries.length = 0;
+    for (sliceIndex = 0; sliceIndex < slice.length; sliceIndex++) {
+      entry = slice[sliceIndex];
+      for (entriesIndex = 0; entriesIndex < sliceIndex; entriesIndex++) {
+        if (entries[entriesIndex].key > entry.key) {
+          entries.splice(entriesIndex, 0, entry);
+          break;
+        }
+      }
+      if (entriesIndex === sliceIndex) entries.push(entry);
+    }
+    state.updateURL();
+  },
+  // `URLSearchParams.prototype.forEach` method
+  forEach: function forEach(callback /* , thisArg */) {
+    var entries = getInternalParamsState(this).entries;
+    var boundFunction = bind(callback, arguments.length > 1 ? arguments[1] : undefined, 3);
+    var index = 0;
+    var entry;
+    while (index < entries.length) {
+      entry = entries[index++];
+      boundFunction(entry.value, entry.key, this);
+    }
+  },
+  // `URLSearchParams.prototype.keys` method
+  keys: function keys() {
+    return new URLSearchParamsIterator(this, 'keys');
+  },
+  // `URLSearchParams.prototype.values` method
+  values: function values() {
+    return new URLSearchParamsIterator(this, 'values');
+  },
+  // `URLSearchParams.prototype.entries` method
+  entries: function entries() {
+    return new URLSearchParamsIterator(this, 'entries');
+  }
+}, { enumerable: true });
+
+// `URLSearchParams.prototype[@@iterator]` method
+redefine(URLSearchParamsPrototype, ITERATOR, URLSearchParamsPrototype.entries, { name: 'entries' });
+
+// `URLSearchParams.prototype.toString` method
+// https://url.spec.whatwg.org/#urlsearchparams-stringification-behavior
+redefine(URLSearchParamsPrototype, 'toString', function toString() {
+  var entries = getInternalParamsState(this).entries;
+  var result = [];
+  var index = 0;
+  var entry;
+  while (index < entries.length) {
+    entry = entries[index++];
+    result.push(serialize(entry.key) + '=' + serialize(entry.value));
+  } return result.join('&');
+}, { enumerable: true });
+
+setToStringTag(URLSearchParamsConstructor, URL_SEARCH_PARAMS);
+
+$({ global: true, forced: !USE_NATIVE_URL }, {
+  URLSearchParams: URLSearchParamsConstructor
+});
+
+// Wrap `fetch` and `Request` for correct work with polyfilled `URLSearchParams`
+if (!USE_NATIVE_URL && isCallable(Headers)) {
+  var wrapRequestOptions = function (init) {
+    if (isObject(init)) {
+      var body = init.body;
+      var headers;
+      if (classof(body) === URL_SEARCH_PARAMS) {
+        headers = init.headers ? new Headers(init.headers) : new Headers();
+        if (!headers.has('content-type')) {
+          headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+        }
+        return create(init, {
+          body: createPropertyDescriptor(0, String(body)),
+          headers: createPropertyDescriptor(0, headers)
+        });
+      }
+    } return init;
+  };
+
+  if (isCallable(nativeFetch)) {
+    $({ global: true, enumerable: true, forced: true }, {
+      fetch: function fetch(input /* , init */) {
+        return nativeFetch(input, arguments.length > 1 ? wrapRequestOptions(arguments[1]) : {});
+      }
+    });
+  }
+
+  if (isCallable(NativeRequest)) {
+    var RequestConstructor = function Request(input /* , init */) {
+      anInstance(this, RequestConstructor, 'Request');
+      return new NativeRequest(input, arguments.length > 1 ? wrapRequestOptions(arguments[1]) : {});
+    };
+
+    RequestPrototype.constructor = RequestConstructor;
+    RequestConstructor.prototype = RequestPrototype;
+
+    $({ global: true, forced: true }, {
+      Request: RequestConstructor
+    });
+  }
+}
+
+module.exports = {
+  URLSearchParams: URLSearchParamsConstructor,
+  getState: getInternalParamsState
+};
+
+
 /***/ })
 
 /******/ 	});
@@ -4279,12 +4824,26 @@ var es_array_from = __webpack_require__(1038);
 var es_string_iterator = __webpack_require__(8783);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.trim.js
 var es_string_trim = __webpack_require__(3210);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.filter.js
-var es_array_filter = __webpack_require__(7327);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.iterator.js
+var es_array_iterator = __webpack_require__(6992);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.to-string.js
 var es_object_to_string = __webpack_require__(1539);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/web.dom-collections.iterator.js
+var web_dom_collections_iterator = __webpack_require__(3948);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/web.url-search-params.js
+var web_url_search_params = __webpack_require__(637);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.keys.js
+var es_object_keys = __webpack_require__(7941);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.to-string.js
 var es_regexp_to_string = __webpack_require__(9714);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.includes.js
+var es_array_includes = __webpack_require__(699);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.includes.js
+var es_string_includes = __webpack_require__(23);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.map.js
+var es_array_map = __webpack_require__(249);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.function.name.js
+var es_function_name = __webpack_require__(8309);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.constructor.js
 var es_regexp_constructor = __webpack_require__(4603);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.exec.js
@@ -4295,10 +4854,10 @@ var es_string_match_all = __webpack_require__(6373);
 var es_array_join = __webpack_require__(9600);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.split.js
 var es_string_split = __webpack_require__(3123);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.keys.js
-var es_object_keys = __webpack_require__(7941);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.symbol.js
 var es_symbol = __webpack_require__(2526);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.filter.js
+var es_array_filter = __webpack_require__(7327);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.get-own-property-descriptor.js
 var es_object_get_own_property_descriptor = __webpack_require__(5003);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.get-own-property-descriptors.js
@@ -4307,14 +4866,8 @@ var es_object_get_own_property_descriptors = __webpack_require__(9337);
 var es_symbol_description = __webpack_require__(1817);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.symbol.iterator.js
 var es_symbol_iterator = __webpack_require__(2165);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.iterator.js
-var es_array_iterator = __webpack_require__(6992);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/web.dom-collections.iterator.js
-var web_dom_collections_iterator = __webpack_require__(3948);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.slice.js
 var es_array_slice = __webpack_require__(7042);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.function.name.js
-var es_function_name = __webpack_require__(8309);
 ;// CONCATENATED MODULE: ./src/simplecomplete/utils/contentloaded.js
 /*
 * contentloaded.js
@@ -4410,15 +4963,20 @@ var defaultOptions = {
   reset: function reset() {},
   // user resets the element to its initial state
   // data handling
-  onBeforeRequest: function onBeforeRequest() {},
+  onBeforeRequest: function onBeforeRequest(xhr, headers, urlParams, formData) {},
   // before the request to the url is sent
-  onRequest: function onRequest() {},
-  onResponse: function onResponse() {},
+  onResponse: function onResponse(data, xhr) {},
   // server sends a response
-  onErrorResponse: function onErrorResponse() {},
+  onTimeout: function onTimeout(xhr) {},
+  // if the request times out
+  onErrorResponse: function onErrorResponse(err, xhr) {},
   // server error
-  onParseItem: function onParseItem() {},
+  onParseResponse: function onParseResponse() {},
   // parses an item from response
+  onParseItems: function onParseItems(data) {
+    data = [];
+  },
+  onParseItem: function onParseItem(data) {},
   onRenderItem: function onRenderItem(out, data) {
     return out;
   } // renders an item from response
@@ -4437,6 +4995,12 @@ function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symb
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+
+
+
 
 
 
@@ -4626,10 +5190,98 @@ var SimpleComplete = /*#__PURE__*/function () {
       this.onResults();
     }
   }, {
-    key: "onSend",
-    value: function onSend() {
+    key: "finishRequest",
+    value: function finishRequest(xhr) {
+      this.wrapper.classList.remove('is-busy');
+    }
+  }, {
+    key: "sendRequest",
+    value: function sendRequest() {
       var _this2 = this;
 
+      var _cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+      var headers = _objectSpread({
+        Accept: 'application/json',
+        'Cache-Control': 'no-cache',
+        'X-Requested-With': 'XMLHttpRequest'
+      }, this.options.headers || {});
+
+      var params = _objectSpread({}, this.options.params || {});
+
+      params[this.options.paramName || 'q'] = this.query;
+      var formData = new FormData();
+      var urlParams = new URLSearchParams();
+      var target = this.options.url;
+      var xhr = SimpleComplete.client;
+      xhr.abort();
+      xhr.addEventListener('load', function (e) {
+        _this2.finishRequest(xhr);
+
+        _this2.handleResponse(xhr, params, formData, e);
+      });
+      xhr.addEventListener('timeout', function (e) {
+        _this2.finishRequest(xhr);
+
+        _this2.options.onTimeout(xhr);
+      });
+      xhr.addEventListener('error', function (e) {
+        _this2.finishRequest(xhr);
+
+        _this2.options.onErrorResponse(e, xhr);
+      });
+      Object.keys(params).forEach(function (_key) {
+        urlParams.set(_key, params[_key]);
+        formData.append(_key, params[_key]);
+      });
+      this.options.onBeforeRequest(xhr, headers, urlParams, formData);
+      target += "?".concat(urlParams.toString());
+      xhr.open(this.options.method || 'GET', target);
+
+      if (xhr.readyState != 1) {
+        console.log(xhr.readyState);
+        this.onError('xhr_not_ready');
+        return;
+      }
+
+      Object.keys(headers).forEach(function (_key) {
+        return xhr.setRequestHeader(_key, headers[_key]);
+      });
+      SimpleComplete.timeout = (this.options.timeout || 30) * 1000;
+      xhr.send(formData);
+    }
+  }, {
+    key: "handleResponse",
+    value: function handleResponse(xhr, params, formData, e) {
+      var response = xhr.responseText || null;
+      var err = null;
+
+      if (response && xhr.getResponseHeader('Content-Type').includes("application/json")) {
+        try {
+          response = JSON.parse(response);
+          this.options.onParseResponse(response);
+
+          if (!Array.isArray(response)) {
+            throw new Error('simplecomplete.errors.no_array_response');
+          } else {
+            console.log(response);
+          }
+        } catch (_e) {
+          err = _e;
+          this.options.onParseResponse(response);
+        }
+      }
+
+      if (!(200 <= xhr.status && xhr.status < 300)) {
+        this.onError('simplecomplete.errors.xhr_wrong_status');
+      } else {
+        var data = this.options.onResponse(response, xhr);
+        this.onResults(response.data || response);
+      }
+    }
+  }, {
+    key: "onSend",
+    value: function onSend() {
       var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
       if (!this.query || this.options.minLength > 0 && this.query.length < this.options.minLength) {
@@ -4637,18 +5289,18 @@ var SimpleComplete = /*#__PURE__*/function () {
       } else {
         if (this.wrapper.classList.contains('is-busy')) {
           this.queued = true;
-        } else {
-          console.log('TODO: send request');
+        } else if (this.options.url) {
           this.wrapper.classList.add('is-busy');
-          window.setTimeout(function () {
-            _this2.wrapper.classList.remove('is-busy');
-
-            if (_this2.queued) {
-              _this2.queued = false;
-
-              _this2.onSend();
-            }
-          }, 3000);
+          this.sendRequest(function (xhr) {
+            console.log('DONE', xhr);
+          });
+          /*window.setTimeout(() => {
+          	this.wrapper.classList.remove('is-busy')
+          	if(this.queued) {
+          		this.queued = false
+          		this.onSend ()
+          	}
+          }, 3000)*/
         }
       }
     }
@@ -4819,30 +5471,93 @@ var SimpleComplete = /*#__PURE__*/function () {
 
       var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
-      if (data !== null) {
-        this.results = data;
-      }
+      try {
+        if (data !== null) {
+          if (!Array.isArray(data)) {
+            this.onError('simplecomplete.errors.data_invalid');
+            return;
+          }
 
-      if (this.results && this.resultsList) {
-        this.resultsList.innerHTML = '';
+          this.options.onParseItems(data);
+          this.results = data.map(function (res) {
+            var item = _this5.options.onParseItem(res) || res;
 
-        try {
-          this.results.filter(function (res) {
-            return !_this5.query || res.value.toString().toLowerCase().indexOf(_this5.query.toLowerCase()) >= 0 || res.label.toLowerCase().indexOf(_this5.query.toLowerCase()) >= 0;
-          }).forEach(function (res) {
-            _this5.resultsList.appendChild(_this5.renderOption(res));
+            switch (_typeof(item)) {
+              case 'string':
+                item = {
+                  value: item,
+                  label: item
+                };
+                break;
+
+              case 'object':
+                item = {
+                  value: item.id || item.value,
+                  label: item.label || item.name
+                };
+                break;
+
+              default:
+                if (Array.isArray(item) && item.length > 0) {
+                  item = {
+                    value: item[0],
+                    label: item[item.length - 1]
+                  };
+                } else {
+                  throw new Error('simplecomplete.errors.invalid response item');
+                }
+
+                break;
+            }
+
+            return item;
           });
-        } catch (err) {
-          console.log(err);
+
+          if (this.results && this.isSelectElement()) {
+            _toConsumableArray(this.element.options).forEach(function (option) {
+              if (!_this5.isSelected(option.value)) {
+                option.remove();
+              }
+            });
+
+            this.results.forEach(function (item) {
+              var option = SimpleComplete.createElement('OPTION');
+              option.value = item.value || item.id;
+              option.textContent = item.label || item.name || item;
+
+              if (!_this5.isSelected(option.value)) {
+                _this5.element.appendChild(option);
+              }
+            });
+          }
         }
 
-        if (!this.resultsList.childNodes.length) {
-          var emptyNode = SimpleComplete.createElement('DIV', {
-            classes: 'simplecomplete__results-list-empty'
-          });
-          emptyNode.textContent = this.options.emptyText || 'No results';
-          this.resultsList.appendChild(emptyNode);
+        if (this.results && this.resultsList) {
+          this.resultsList.innerHTML = '';
+
+          if (this.isSelectElement()) {
+            _toConsumableArray(this.element.options).forEach(function (option) {
+              _this5.resultsList.appendChild(_this5.renderOption({
+                value: option.value,
+                label: option.textContent
+              }));
+            });
+          } else {
+            this.results.forEach(function (res) {
+              return _this5.resultsList.appendChild(_this5.renderOption(res));
+            });
+          }
+
+          if (!this.resultsList.childNodes.length) {
+            var emptyNode = SimpleComplete.createElement('DIV', {
+              classes: 'simplecomplete__results-list-empty'
+            });
+            emptyNode.textContent = this.options.emptyText || 'No results';
+            this.resultsList.appendChild(emptyNode);
+          }
         }
+      } catch (err) {
+        this.onError(err);
       }
     }
   }, {
@@ -4935,6 +5650,8 @@ _defineProperty(SimpleComplete, "KEYS", {
   TAB: 9
 });
 
+_defineProperty(SimpleComplete, "client", new XMLHttpRequest());
+
 
 SimpleComplete.initClass();
 SimpleComplete.version = 'dev';
@@ -4948,9 +5665,10 @@ SimpleComplete.discover = function () {
 
   if (inputs && inputs.length > 0) {
     inputs.forEach(function (_in) {
-      console.log(_in, _in.dataset.blankable || false);
       var options = {
-        minLength: _in.dataset.minLength || null,
+        url: _in.dataset.sc || null,
+        paramName: _in.dataset.param || simplecomplete_options.paramName,
+        minLength: _in.dataset.minLength !== null ? _in.dataset.minLength : null,
         blankable: _in.dataset.blankable || false
       };
       res.push(new SimpleComplete(_in, options));

@@ -142,10 +142,12 @@
   position: absolute;
   top: 100%;
   left: 0;
+  min-width: 20%;
   max-width: 100%;
   background: #FFFFFF;
   box-shadow: 0 0.125em 0.25em 0 #aaaaaa;
   z-index: 255;
+  margin-top: 0.5em;
   border-radius: 0.5em;
 }
 @media screen and (max-width: 992px) {
@@ -157,6 +159,32 @@
     background: #FFFFFF;
     box-shadow: none;
     border-radius: 0;
+    margin-top: 0;
+  }
+}
+@media screen and (min-width: 993px) {
+  .simplecomplete__results:before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    z-index: -10;
+    border: solid 0.5em #FFFFFF;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    transform: translate(-50%, 50%) rotate(-45deg);
+    box-shadow: 0 0 0.25em rgba(0, 0, 0, 0.3);
+  }
+  .simplecomplete__results:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 4em;
+    height: 2em;
+    z-index: -1;
+    background: #FFFFFF;
+    transform: translateX(-50%);
   }
 }
 .simplecomplete__results-list {
@@ -169,7 +197,7 @@
 .simplecomplete__results-list-item, .simplecomplete__results-list-empty {
   cursor: pointer;
   display: block;
-  padding: 0.5em 1em;
+  padding: 1em;
   color: #BBBBBB;
   font-weight: 500;
 }
@@ -268,7 +296,7 @@
 .simplecomplete.is-busy .simplecomplete__results-list {
   padding-top: 1em;
 }
-.simplecomplete.is-busy .simplecomplete__results-list-empty {
+.simplecomplete.is-busy .simplecomplete__results-list-empty, .simplecomplete.is-busy .simplecomplete__results-list-item {
   display: none;
 }
 .simplecomplete.is-busy .simplecomplete__results-list:before, .simplecomplete.is-busy .simplecomplete__results-list:after {
@@ -277,8 +305,8 @@
   border-radius: 0.5em;
   height: 1.2em;
   background: #EFEFEF;
-  width: 80%;
-  margin: 0 1em;
+  width: 90%;
+  margin: 0 0.5em;
   animation-name: pulsingAnim;
   animation-iteration-count: infinite;
   animation-duration: 0.8s;
@@ -287,6 +315,7 @@
 .simplecomplete.is-busy .simplecomplete__results-list:after {
   width: 60%;
   margin-top: 0.6em;
+  margin-bottom: 0.4em;
 }
 .simplecomplete:not(.has-results) .simplecomplete__results {
   display: none;
