@@ -26,11 +26,13 @@ const defaultOptions = {
 	reset () {},		// user resets the element to its initial state
 
 	// data handling
-	onBeforeRequest () {},	// before the request to the url is sent
-	onRequest () {},
-	onResponse () {},		// server sends a response
-	onErrorResponse () {},	// server error
-	onParseItem () {},		// parses an item from response
+	onBeforeRequest (xhr, headers, urlParams, formData) {},	// before the request to the url is sent
+	onResponse (data, xhr) {},		// server sends a response
+	onTimeout (xhr) {}, // if the request times out
+	onErrorResponse (err, xhr) {},	// server error
+	onParseResponse () {},		// parses an item from response
+	onParseItems (data) { data = [] },
+	onParseItem (data) {},
 	onRenderItem (out, data) { return out },	// renders an item from response
 }
 

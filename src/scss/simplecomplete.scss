@@ -175,10 +175,13 @@
 		position: absolute;
 		top: 100%;
 		left: 0;
+		min-width: 20%;
 		max-width: 100%;
 		background: $white;
 		box-shadow: 0 .125em .25em 0 lighten($black, 60);
 		z-index: 255;
+
+		margin-top: .5em;
 
 		border-radius: $border-radius;
 
@@ -190,6 +193,35 @@
 			background: $white;
 			box-shadow: none;
 			border-radius: 0;
+			margin-top: 0;
+		}
+
+		@media screen and (min-width: 993px) {
+			&:before {
+				content: "";
+				position: absolute;
+				left: 50%;
+				bottom: 100%;
+				z-index: -10;
+
+				border: solid .5em $white;
+				border-bottom-color: transparent;
+				border-left-color: transparent;
+				transform: translate(-50%, 50%) rotate(-45deg);
+				box-shadow: 0 0 .25em $default-shadow;
+			}
+
+			&:after {
+				content: "";
+				position: absolute;
+				top: 0;
+				left: 50%;
+				width: 4em;
+				height: 2em;
+				z-index: -1;
+				background: $white;
+				transform: translateX(-50%);
+			}
 		}
 
 		&-list {
@@ -201,7 +233,7 @@
 			&-item, &-empty {
 				cursor: pointer;
 				display: block;
-				padding: $spacer * .5 $spacer;
+				padding: $spacer;
 				color: $text-secondary;
 				font-weight: 500;
 				&:not(:last-child) {
@@ -321,7 +353,7 @@
 
 		.simplecomplete__results-list {
 			padding-top: 1em;
-			&-empty {
+			&-empty, &-item {
 				display: none;
 			}
 
@@ -331,8 +363,8 @@
 				border-radius: $border-radius;
 				height: 1.2em;
 				background: $light-gray;
-				width: 80%;
-				margin: 0 1em;
+				width: 90%;
+				margin: 0 $spacer * .5;
 				animation-name: pulsingAnim;
 				animation-iteration-count: infinite;
 				animation-duration: .8s;
@@ -342,6 +374,7 @@
 			&:after {
 				width: 60%;
 				margin-top: .6em;
+				margin-bottom: .4em;
 			}
 		}
 	}

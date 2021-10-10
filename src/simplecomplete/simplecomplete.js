@@ -6,6 +6,9 @@ export default class SimpleComplete {
 		ENTER: 13,
 		TAB: 9
 	}
+
+	static client = new XMLHttpRequest()
+
 	static initClass () {
 		this.prototype.events = []
 
@@ -162,22 +165,120 @@ export default class SimpleComplete {
 		this.onResults()
 	}
 
+	finishRequest (xhr) {
+		this.wrapper.classList.remove('is-busy')
+	}
+
+	sendRequest (_cb = null) {
+		let headers = {
+			Accept: 'application/json',
+			'Cache-Control': 'no-cache',
+			'X-Requested-With': 'XMLHttpRequest',
+			...(this.options.headers || {})
+		}
+		let params = {
+			...(this.options.params || {})
+		}
+
+		params[this.options.paramName || 'q'] = this.query
+
+		let formData = new FormData()
+		let urlParams = new URLSearchParams()
+		let target = this.options.url
+
+		let xhr = SimpleComplete.client
+
+		xhr.abort()
+		xhr.addEventListener('load', e => {
+			this.finishRequest (xhr)
+			this.handleResponse (xhr, params, formData, e)
+		})
+		xhr.addEventListener('timeout', (e) => {
+			this.finishRequest (xhr)
+			this.options.onTimeout (xhr)
+		})
+		xhr.addEventListener('error', (e) => {
+			this.finishRequest (xhr)
+			this.options.onErrorResponse (e, xhr)
+		})
+
+		Object.keys(params).forEach(_key => {
+			urlParams.set(_key, params[_key])
+			formData.append(_key, params[_key])
+		})
+
+		this.options.onBeforeRequest(xhr, headers, urlParams, formData)
+
+		target += `?${urlParams.toString()}`
+
+		xhr.open(
+			this.options.method || 'GET',
+			target
+		)
+
+		if (xhr.readyState != 1) {
+			console.log(xhr.readyState)
+			this.onError('xhr_not_ready')
+			return;
+		}
+
+		Object.keys(headers).forEach(_key => xhr.setRequestHeader(_key, headers[_key]))
+
+		SimpleComplete.timeout = (this.options.timeout || 30) * 1000
+
+		xhr.send(formData)
+	}
+
+	handleResponse (xhr, params, formData, e) {
+		let response = xhr.responseText || null
+		let err = null
+		if (response && xhr.getResponseHeader('Content-Type').includes("application/json")) {
+			try {
+				response = JSON.parse(response)
+				this.options.onParseResponse(response)
+
+				if (!Array.isArray(response)) {
+					throw new Error('simplecomplete.errors.no_array_response')
+				} else {
+					console.log(response)
+				}
+			} catch(_e) {
+				err = _e
+
+				this.options.onParseResponse(response)
+			}
+		}
+
+		if (!(200 <= xhr.status && xhr.status < 300)) {
+			this.onError('simplecomplete.errors.xhr_wrong_status')
+		} else {
+			let data =
+
+			this.options.onResponse (response, xhr)
+			this.onResults(response.data || response)
+		}
+	}
+
 	onSend (e = null) {
 		if (!this.query || (this.options.minLength > 0 && this.query.length < this.options.minLength)) {
 			this.onError('simplecomplete.errors.min-length')
 		} else {
 			if (this.wrapper.classList.contains('is-busy')) {
 				this.queued = true
-			} else {
-				console.log('TODO: send request')
+			} else if (this.options.url) {
 				this.wrapper.classList.add('is-busy')
-				window.setTimeout(() => {
+
+				this.sendRequest((xhr) => {
+					console.log('DONE', xhr)
+				})
+
+				/*window.setTimeout(() => {
 					this.wrapper.classList.remove('is-busy')
 					if(this.queued) {
 						this.queued = false
 						this.onSend ()
 					}
-				}, 3000)
+				}, 3000)*/
 			}
 		}
 	}
@@ -322,32 +423,89 @@ export default class SimpleComplete {
 	}
 
 	onResults (data = null) {
-		if(data !== null) {
-			this.results = data
-		}
+		try {
+			if(data !== null) {
+				if (!Array.isArray(data)) {
+					this.onError('simplecomplete.errors.data_invalid')
+					return
+				}
 
-		if(this.results && this.resultsList) {
-			this.resultsList.innerHTML = ''
+				this.options.onParseItems (data)
+				this.results = data.map(res => {
+					let item = this.options.onParseItem(res) || res
 
-			try {
-				this.results.filter(res => {
-					return !this.query || res.value.toString().toLowerCase().indexOf(this.query.toLowerCase()) >= 0 || res.label.toLowerCase().indexOf(this.query.toLowerCase()) >= 0
-				}).forEach(res => {
-					this.resultsList.appendChild(this.renderOption(res))
+					switch(typeof item) {
+						case 'string':
+							item = {
+								value: item,
+								label: item
+							}
+							break
+						case 'object':
+							item = {
+								value: item.id || item.value,
+								label: item.label || item.name
+							}
+							break
+						default:
+							if (Array.isArray(item) && item.length > 0) {
+								item = {
+									value: item[0],
+									label: item[item.length - 1]
+								}
+							} else {
+								throw new Error('simplecomplete.errors.invalid response item')
+							}
+							break
+					}
+
+					return item
 				})
-			} catch(err) {
-				console.log(err)
+
+				if (this.results && this.isSelectElement ()) {
+					[...this.element.options].forEach(option => {
+						if (!this.isSelected(option.value)) {
+							option.remove()
+						}
+					})
+
+					this.results.forEach(item => {
+						let option = SimpleComplete.createElement('OPTION')
+						option.value = item.value || item.id
+						option.textContent = item.label || item.name || item
+
+						if (!this.isSelected(option.value)) {
+							this.element.appendChild(option)
+						}
+					})
+				}
 			}
 
-			if (!this.resultsList.childNodes.length) {
-				let emptyNode = SimpleComplete.createElement('DIV', {
-					classes: 'simplecomplete__results-list-empty'
-				})
+			if(this.results && this.resultsList) {
+				this.resultsList.innerHTML = ''
+				if (this.isSelectElement ()) {
+					[...this.element.options].forEach(option => {
+						this.resultsList.appendChild(this.renderOption({
+							value: option.value,
+							label: option.textContent
+						}))
+					})
+				} else {
+					this.results.forEach( res => this.resultsList.appendChild(this.renderOption(res)) )
+				}
 
-				emptyNode.textContent = this.options.emptyText || 'No results'
+				if (!this.resultsList.childNodes.length) {
+					let emptyNode = SimpleComplete.createElement('DIV', {
+						classes: 'simplecomplete__results-list-empty'
+					})
 
-				this.resultsList.appendChild(emptyNode)
+					emptyNode.textContent = this.options.emptyText || 'No results'
+
+					this.resultsList.appendChild(emptyNode)
+				}
 			}
+		} catch(err) {
+			this.onError(err)
 		}
 	}
 
@@ -439,9 +597,10 @@ SimpleComplete.discover = () => {
 
 	if (inputs && inputs.length > 0) {
 		inputs.forEach(_in => {
-			console.log(_in, _in.dataset.blankable || false)
 			let options = {
-				minLength: _in.dataset.minLength || null,
+				url: _in.dataset.sc || null,
+				paramName: _in.dataset.param || _defaults.paramName,
+				minLength: _in.dataset.minLength !== null ? _in.dataset.minLength : null,
 				blankable: _in.dataset.blankable || false
 			}
 			res.push(new SimpleComplete(_in, options));
