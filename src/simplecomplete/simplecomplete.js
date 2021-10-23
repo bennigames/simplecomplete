@@ -148,8 +148,9 @@ export default class SimpleComplete {
 	}
 
 	onInput (e) {
-		if (this.launchedRequest) {
+		if (this.launchedRequest !== null) {
 			window.clearTimeout(this.launchedRequest)
+			this.launchedRequest = null
 		}
 
 		switch (e.keyCode) {
@@ -161,18 +162,21 @@ export default class SimpleComplete {
 		}
 
 		this.query = e.target.textContent.trim()
-		this.launchedRequest = window.setTimeout(this.onSend.bind(this), this.options.delay || 300)
+		if (this.options.url) {
+			this.launchedRequest = window.setTimeout(this.onSend.bind(this), this.options.delay || 300)
+			console.log(this.options.url)
+		}
 		this.onResults()
 	}
 
 	finishRequest (xhr) {
 		this.wrapper.classList.remove('is-busy')
+		this.queued = false
 	}
 
-	sendRequest (_cb = null) {
+	sendRequest () {
 		let headers = {
 			Accept: 'application/json',
-			'Cache-Control': 'no-cache',
 			'X-Requested-With': 'XMLHttpRequest',
 			...(this.options.headers || {})
 		}
@@ -252,14 +256,17 @@ export default class SimpleComplete {
 		if (!(200 <= xhr.status && xhr.status < 300)) {
 			this.onError('simplecomplete.errors.xhr_wrong_status')
 		} else {
-			let data =
-
 			this.options.onResponse (response, xhr)
 			this.onResults(response.data || response)
 		}
 	}
 
 	onSend (e = null) {
+		if(this.launchedRequest !== null) {
+			window.clearTimeout(this.launchedRequest)
+			this.launchedRequest = null
+		}
+
 		if (!this.query || (this.options.minLength > 0 && this.query.length < this.options.minLength)) {
 			this.onError('simplecomplete.errors.min-length')
 		} else {
@@ -267,18 +274,7 @@ export default class SimpleComplete {
 				this.queued = true
 			} else if (this.options.url) {
 				this.wrapper.classList.add('is-busy')
-
-				this.sendRequest((xhr) => {
-					console.log('DONE', xhr)
-				})
-
-				/*window.setTimeout(() => {
-					this.wrapper.classList.remove('is-busy')
-					if(this.queued) {
-						this.queued = false
-						this.onSend ()
-					}
-				}, 3000)*/
+				this.sendRequest()
 			}
 		}
 	}
@@ -335,7 +331,7 @@ export default class SimpleComplete {
 	updateLabel () {
 		this.currentValue.classList.remove('is-empty')
 		this.currentValue.innerHTML = ''
-		if (this.isMultiple() || this.isSelectElement()) {
+		if (this.isMultiple() && this.isSelectElement()) {
 			let _opts = Array.from(this.element.selectedOptions)
 			for (let _key in _opts) {
 				let o = _opts[_key]
@@ -360,21 +356,32 @@ export default class SimpleComplete {
 		}
 
 		if(!this.currentValue.childNodes.length) {
-			let placeholder = this.element.value || this.element.getAttribute('placeholder') || this.element.dataset.placeholder || this.options.placeholder || 'Search'
-			if (this.isSelectElement()) {
+			if (this.element.value) {
 				let badge = SimpleComplete.createElement('SPAN', {
-					classes: 'empty-item'
+					classes: 'selected-option'
 				})
+				let label = this.results.filter(item => item.value == this.element.value).map(item => item.label || item.value).shift()
 
-				badge.textContent = placeholder
+				badge.textContent = label || this.element.value
 
 				this.currentValue.appendChild(badge)
 			} else {
-				this.currentValue.textContent = placeholder
-			}
+				let placeholder = this.element.getAttribute('placeholder') || this.element.dataset.placeholder || this.options.placeholder || 'Search'
+				if (this.isSelectElement()) {
+					let badge = SimpleComplete.createElement('SPAN', {
+						classes: 'empty-item'
+					})
 
-			if (placeholder == this.options.placeholder) {
-				this.currentValue.classList.add('is-empty')
+					badge.textContent = placeholder
+
+					this.currentValue.appendChild(badge)
+				} else {
+					this.currentValue.textContent = placeholder
+				}
+
+				if (placeholder == this.options.placeholder) {
+					this.currentValue.classList.add('is-empty')
+				}
 			}
 		}
 	}
@@ -484,14 +491,14 @@ export default class SimpleComplete {
 			if(this.results && this.resultsList) {
 				this.resultsList.innerHTML = ''
 				if (this.isSelectElement ()) {
-					[...this.element.options].forEach(option => {
+					[...this.element.options].filter(this.filterResults.bind(this)).forEach(option => {
 						this.resultsList.appendChild(this.renderOption({
 							value: option.value,
 							label: option.textContent
 						}))
 					})
 				} else {
-					this.results.forEach( res => this.resultsList.appendChild(this.renderOption(res)) )
+					this.results.filter(this.filterResults.bind(this)).forEach( res => this.resultsList.appendChild(this.renderOption(res)) )
 				}
 
 				if (!this.resultsList.childNodes.length) {
@@ -502,11 +509,25 @@ export default class SimpleComplete {
 					emptyNode.textContent = this.options.emptyText || 'No results'
 
 					this.resultsList.appendChild(emptyNode)
+					this.wrapper.classList.add('has-results')
+				} else {
+					this.wrapper.classList.remove('has-results')
 				}
 			}
 		} catch(err) {
 			this.onError(err)
 		}
+	}
+
+	filterResults (option) {
+		if(!this.query) {
+			return true
+		}
+		let regexp = new RegExp(this.query,'gi')
+		let label = option.label || option.textContent
+		let check = label.matchAll(regexp)
+
+		return [...check].length > 0
 	}
 
 	isSelected (_val) {

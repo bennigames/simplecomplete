@@ -66,7 +66,6 @@
 			flex: 1;
 			background: white;
 			padding: $padding;
-			overflow-x: auto;
 			white-space: nowrap;
 			border: $border-default-transparent;
 			border-radius: $border-radius * .8;
@@ -116,7 +115,16 @@
 	}
 
 	&__value {
-		@extend .simplecomplete__input-field;
+		border: $border-default-transparent;
+		border-radius: $border-radius * .8;
+		background: white;
+		flex: 1;
+		flex-flow: row wrap;
+		white-space: normal;
+		margin: .125em;
+		padding: 0;
+		padding-bottom: $spacer * .25;
+		outline: none;
 		&:not(.hide) {
 			& ~ .simplecomplete__input {
 				display: none;
@@ -136,13 +144,7 @@
 			background: $gray;
 			color: $black;
 
-			&:first-child {
-				margin-left: -.25em;
-			}
-
-			&:last-child {
-				margin-right: -.25em;
-			}
+			margin: $spacer * .25 $spacer * .25 0;
 		}
 
 		> .empty-item {
@@ -154,15 +156,28 @@
 		&.is-empty {
 			color: $text-secondary;
 		}
+
+		@media screen and (max-width: 992px) {
+			border-radius: 0;
+		}
+	}
+
+	&:not(.is-select) {
+		.simplecomplete__value.is-empty {
+			padding: $spacer * .75 $spacer * .5;
+		}
 	}
 
 	&.is-multiple, &.is-blankable {
-		.simplecomplete__value > .selected-option {
-			&:after {
-				content: "\00D7";
-				display: inline;
-				margin-left: .25em;
-				color: darken($text-secondary, 20);
+		.simplecomplete__value {
+			position: relative;
+			> .selected-option {
+				&:after {
+					content: "\00D7";
+					display: inline;
+					margin-left: .25em;
+					color: darken($text-secondary, 20);
+				}
 			}
 		}
 
@@ -172,6 +187,7 @@
 	}
 
 	&__results {
+		display: none;
 		position: absolute;
 		top: 100%;
 		left: 0;
@@ -286,6 +302,24 @@
 		display: none;
 	}
 
+	&.is-select:not(.active) {
+		display: flex;
+		flex-flow: row nowrap;
+		align-items: center;
+		&:after {
+			content: "";
+			display: inline-block;
+
+			border: solid .25em $black;
+			border-top-color: transparent;
+			border-right-color: transparent;
+			transform: translateY(-40%) rotate(-45deg);
+			width: 0;
+			height: 0;
+			margin: 0 1em;
+		}
+	}
+
 	&.is-blankable:not(.active) {
 		.simplecomplete__value > .selected-option {
 			&:after {
@@ -302,7 +336,7 @@
 
 	&.active.is-select, &:not(.is-select) {
 		.simplecomplete__input-field {
-			padding: $spacer * 1.05;
+			padding: $spacer * .85;
 		}
 	}
 
@@ -379,9 +413,9 @@
 		}
 	}
 
-	&:not(.has-results) {
+	&.active {
 		.simplecomplete__results {
-			display: none;
+			display: block;
 		}
 	}
 }
