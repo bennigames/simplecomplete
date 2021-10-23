@@ -97,7 +97,7 @@ module.exports = function (S, index, unicode) {
 
 /***/ }),
 
-/***/ 787:
+/***/ 5787:
 /***/ (function(module) {
 
 module.exports = function (it, Constructor, name) {
@@ -527,7 +527,7 @@ module.exports = function (target, source) {
 
 /***/ }),
 
-/***/ 964:
+/***/ 4964:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 var wellKnownSymbol = __webpack_require__(5112);
@@ -1752,7 +1752,7 @@ module.exports = isCallable(WeakMap) && /native code/.test(inspectSource(WeakMap
 
 /***/ }),
 
-/***/ 929:
+/***/ 3929:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 var isRegExp = __webpack_require__(7850);
@@ -2178,7 +2178,7 @@ module.exports = global;
 
 /***/ }),
 
-/***/ 248:
+/***/ 2248:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 var redefine = __webpack_require__(1320);
@@ -2991,7 +2991,7 @@ $({ target: 'Array', stat: true, forced: INCORRECT_ITERATION }, {
 
 /***/ }),
 
-/***/ 699:
+/***/ 6699:
 /***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
@@ -3101,7 +3101,7 @@ $({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD }, {
 
 /***/ }),
 
-/***/ 249:
+/***/ 1249:
 /***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
@@ -3549,16 +3549,16 @@ if (NOT_GENERIC || INCORRECT_NAME) {
 
 /***/ }),
 
-/***/ 23:
+/***/ 2023:
 /***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
 var $ = __webpack_require__(2109);
-var notARegExp = __webpack_require__(929);
+var notARegExp = __webpack_require__(3929);
 var requireObjectCoercible = __webpack_require__(4488);
 var toString = __webpack_require__(1340);
-var correctIsRegExpLogic = __webpack_require__(964);
+var correctIsRegExpLogic = __webpack_require__(4964);
 
 // `String.prototype.includes` method
 // https://tc39.es/ecma262/#sec-string.prototype.includes
@@ -4359,7 +4359,7 @@ handlePrototype(DOMTokenListPrototype, 'DOMTokenList');
 
 /***/ }),
 
-/***/ 637:
+/***/ 1637:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
@@ -4370,11 +4370,11 @@ var $ = __webpack_require__(2109);
 var getBuiltIn = __webpack_require__(5005);
 var USE_NATIVE_URL = __webpack_require__(590);
 var redefine = __webpack_require__(1320);
-var redefineAll = __webpack_require__(248);
+var redefineAll = __webpack_require__(2248);
 var setToStringTag = __webpack_require__(8003);
 var createIteratorConstructor = __webpack_require__(4994);
 var InternalStateModule = __webpack_require__(9909);
-var anInstance = __webpack_require__(787);
+var anInstance = __webpack_require__(5787);
 var isCallable = __webpack_require__(614);
 var hasOwn = __webpack_require__(2597);
 var bind = __webpack_require__(9974);
@@ -4831,17 +4831,19 @@ var es_object_to_string = __webpack_require__(1539);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/web.dom-collections.iterator.js
 var web_dom_collections_iterator = __webpack_require__(3948);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/web.url-search-params.js
-var web_url_search_params = __webpack_require__(637);
+var web_url_search_params = __webpack_require__(1637);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.keys.js
 var es_object_keys = __webpack_require__(7941);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.to-string.js
 var es_regexp_to_string = __webpack_require__(9714);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.includes.js
-var es_array_includes = __webpack_require__(699);
+var es_array_includes = __webpack_require__(6699);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.includes.js
-var es_string_includes = __webpack_require__(23);
+var es_string_includes = __webpack_require__(2023);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.map.js
-var es_array_map = __webpack_require__(249);
+var es_array_map = __webpack_require__(1249);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.filter.js
+var es_array_filter = __webpack_require__(7327);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.function.name.js
 var es_function_name = __webpack_require__(8309);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.constructor.js
@@ -4856,8 +4858,6 @@ var es_array_join = __webpack_require__(9600);
 var es_string_split = __webpack_require__(3123);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.symbol.js
 var es_symbol = __webpack_require__(2526);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.filter.js
-var es_array_filter = __webpack_require__(7327);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.get-own-property-descriptor.js
 var es_object_get_own_property_descriptor = __webpack_require__(5003);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.get-own-property-descriptors.js
@@ -5172,8 +5172,9 @@ var SimpleComplete = /*#__PURE__*/function () {
   }, {
     key: "onInput",
     value: function onInput(e) {
-      if (this.launchedRequest) {
+      if (this.launchedRequest !== null) {
         window.clearTimeout(this.launchedRequest);
+        this.launchedRequest = null;
       }
 
       switch (e.keyCode) {
@@ -5186,24 +5187,27 @@ var SimpleComplete = /*#__PURE__*/function () {
       }
 
       this.query = e.target.textContent.trim();
-      this.launchedRequest = window.setTimeout(this.onSend.bind(this), this.options.delay || 300);
+
+      if (this.options.url) {
+        this.launchedRequest = window.setTimeout(this.onSend.bind(this), this.options.delay || 300);
+        console.log(this.options.url);
+      }
+
       this.onResults();
     }
   }, {
     key: "finishRequest",
     value: function finishRequest(xhr) {
       this.wrapper.classList.remove('is-busy');
+      this.queued = false;
     }
   }, {
     key: "sendRequest",
     value: function sendRequest() {
       var _this2 = this;
 
-      var _cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
       var headers = _objectSpread({
         Accept: 'application/json',
-        'Cache-Control': 'no-cache',
         'X-Requested-With': 'XMLHttpRequest'
       }, this.options.headers || {});
 
@@ -5275,7 +5279,7 @@ var SimpleComplete = /*#__PURE__*/function () {
       if (!(200 <= xhr.status && xhr.status < 300)) {
         this.onError('simplecomplete.errors.xhr_wrong_status');
       } else {
-        var data = this.options.onResponse(response, xhr);
+        this.options.onResponse(response, xhr);
         this.onResults(response.data || response);
       }
     }
@@ -5284,6 +5288,11 @@ var SimpleComplete = /*#__PURE__*/function () {
     value: function onSend() {
       var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
+      if (this.launchedRequest !== null) {
+        window.clearTimeout(this.launchedRequest);
+        this.launchedRequest = null;
+      }
+
       if (!this.query || this.options.minLength > 0 && this.query.length < this.options.minLength) {
         this.onError('simplecomplete.errors.min-length');
       } else {
@@ -5291,16 +5300,7 @@ var SimpleComplete = /*#__PURE__*/function () {
           this.queued = true;
         } else if (this.options.url) {
           this.wrapper.classList.add('is-busy');
-          this.sendRequest(function (xhr) {
-            console.log('DONE', xhr);
-          });
-          /*window.setTimeout(() => {
-          	this.wrapper.classList.remove('is-busy')
-          	if(this.queued) {
-          		this.queued = false
-          		this.onSend ()
-          	}
-          }, 3000)*/
+          this.sendRequest();
         }
       }
     }
@@ -5370,7 +5370,7 @@ var SimpleComplete = /*#__PURE__*/function () {
       this.currentValue.classList.remove('is-empty');
       this.currentValue.innerHTML = '';
 
-      if (this.isMultiple() || this.isSelectElement()) {
+      if (this.isMultiple() && this.isSelectElement()) {
         var _opts = Array.from(this.element.selectedOptions);
 
         for (var _key in _opts) {
@@ -5397,21 +5397,35 @@ var SimpleComplete = /*#__PURE__*/function () {
       }
 
       if (!this.currentValue.childNodes.length) {
-        var placeholder = this.element.value || this.element.getAttribute('placeholder') || this.element.dataset.placeholder || this.options.placeholder || 'Search';
-
-        if (this.isSelectElement()) {
+        if (this.element.value) {
           var _badge = SimpleComplete.createElement('SPAN', {
-            classes: 'empty-item'
+            classes: 'selected-option'
           });
 
-          _badge.textContent = placeholder;
+          var label = this.results.filter(function (item) {
+            return item.value == _this3.element.value;
+          }).map(function (item) {
+            return item.label || item.value;
+          }).shift();
+          _badge.textContent = label || this.element.value;
           this.currentValue.appendChild(_badge);
         } else {
-          this.currentValue.textContent = placeholder;
-        }
+          var placeholder = this.element.getAttribute('placeholder') || this.element.dataset.placeholder || this.options.placeholder || 'Search';
 
-        if (placeholder == this.options.placeholder) {
-          this.currentValue.classList.add('is-empty');
+          if (this.isSelectElement()) {
+            var _badge2 = SimpleComplete.createElement('SPAN', {
+              classes: 'empty-item'
+            });
+
+            _badge2.textContent = placeholder;
+            this.currentValue.appendChild(_badge2);
+          } else {
+            this.currentValue.textContent = placeholder;
+          }
+
+          if (placeholder == this.options.placeholder) {
+            this.currentValue.classList.add('is-empty');
+          }
         }
       }
     }
@@ -5536,14 +5550,14 @@ var SimpleComplete = /*#__PURE__*/function () {
           this.resultsList.innerHTML = '';
 
           if (this.isSelectElement()) {
-            _toConsumableArray(this.element.options).forEach(function (option) {
+            _toConsumableArray(this.element.options).filter(this.filterResults.bind(this)).forEach(function (option) {
               _this5.resultsList.appendChild(_this5.renderOption({
                 value: option.value,
                 label: option.textContent
               }));
             });
           } else {
-            this.results.forEach(function (res) {
+            this.results.filter(this.filterResults.bind(this)).forEach(function (res) {
               return _this5.resultsList.appendChild(_this5.renderOption(res));
             });
           }
@@ -5554,11 +5568,26 @@ var SimpleComplete = /*#__PURE__*/function () {
             });
             emptyNode.textContent = this.options.emptyText || 'No results';
             this.resultsList.appendChild(emptyNode);
+            this.wrapper.classList.add('has-results');
+          } else {
+            this.wrapper.classList.remove('has-results');
           }
         }
       } catch (err) {
         this.onError(err);
       }
+    }
+  }, {
+    key: "filterResults",
+    value: function filterResults(option) {
+      if (!this.query) {
+        return true;
+      }
+
+      var regexp = new RegExp(this.query, 'gi');
+      var label = option.label || option.textContent;
+      var check = label.matchAll(regexp);
+      return _toConsumableArray(check).length > 0;
     }
   }, {
     key: "isSelected",

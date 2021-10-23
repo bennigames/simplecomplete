@@ -50,11 +50,10 @@
   display: flex;
   flex-flow: row nowrap;
 }
-.simplecomplete__input-field, .simplecomplete__value {
+.simplecomplete__input-field {
   flex: 1;
   background: white;
   padding: 0.5em 0.75em;
-  overflow-x: auto;
   white-space: nowrap;
   border: solid 0.0625em transparent;
   border-radius: 0.4em;
@@ -62,7 +61,7 @@
   margin: 0.125em;
 }
 @media screen and (max-width: 992px) {
-  .simplecomplete__input-field, .simplecomplete__value {
+  .simplecomplete__input-field {
     border-radius: 0;
   }
 }
@@ -99,6 +98,18 @@
     color: #DDDDDD;
   }
 }
+.simplecomplete__value {
+  border: solid 0.0625em transparent;
+  border-radius: 0.4em;
+  background: white;
+  flex: 1;
+  flex-flow: row wrap;
+  white-space: normal;
+  margin: 0.125em;
+  padding: 0;
+  padding-bottom: 0.25em;
+  outline: none;
+}
 .simplecomplete__value:not(.hide) ~ .simplecomplete__input {
   display: none;
 }
@@ -114,12 +125,7 @@
   border: solid 0.0625em transparent;
   background: #DDDDDD;
   color: #111111;
-}
-.simplecomplete__value > .selected-option:first-child, .simplecomplete__value > .empty-item:first-child {
-  margin-left: -0.25em;
-}
-.simplecomplete__value > .selected-option:last-child, .simplecomplete__value > .empty-item:last-child {
-  margin-right: -0.25em;
+  margin: 0.25em 0.25em 0;
 }
 .simplecomplete__value > .empty-item {
   background: #FFFFFF;
@@ -128,6 +134,17 @@
 }
 .simplecomplete__value.is-empty {
   color: #BBBBBB;
+}
+@media screen and (max-width: 992px) {
+  .simplecomplete__value {
+    border-radius: 0;
+  }
+}
+.simplecomplete:not(.is-select) .simplecomplete__value.is-empty {
+  padding: 0.75em 0.5em;
+}
+.simplecomplete.is-multiple .simplecomplete__value, .simplecomplete.is-blankable .simplecomplete__value {
+  position: relative;
 }
 .simplecomplete.is-multiple .simplecomplete__value > .selected-option:after, .simplecomplete.is-blankable .simplecomplete__value > .selected-option:after {
   content: "×";
@@ -139,6 +156,7 @@
   display: block;
 }
 .simplecomplete__results {
+  display: none;
   position: absolute;
   top: 100%;
   left: 0;
@@ -241,14 +259,30 @@
 .simplecomplete .hide {
   display: none;
 }
+.simplecomplete.is-select:not(.active) {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+.simplecomplete.is-select:not(.active):after {
+  content: "";
+  display: inline-block;
+  border: solid 0.25em #111111;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  transform: translateY(-40%) rotate(-45deg);
+  width: 0;
+  height: 0;
+  margin: 0 1em;
+}
 .simplecomplete.is-blankable:not(.active) .simplecomplete__value > .selected-option:after {
   display: none;
 }
 .simplecomplete.active:not(.is-select) .simplecomplete__results {
   display: block;
 }
-.simplecomplete.active.is-select .simplecomplete__input-field, .simplecomplete.active.is-select .simplecomplete__value, .simplecomplete:not(.is-select) .simplecomplete__input-field, .simplecomplete:not(.is-select) .simplecomplete__value {
-  padding: 1.05em;
+.simplecomplete.active.is-select .simplecomplete__input-field, .simplecomplete:not(.is-select) .simplecomplete__input-field {
+  padding: 0.85em;
 }
 .simplecomplete.inline {
   display: inline-block;
@@ -290,7 +324,7 @@
   animation-duration: 3s;
   animation-timing-function: linear;
 }
-.simplecomplete.is-busy .simplecomplete__input-field, .simplecomplete.is-busy .simplecomplete__value {
+.simplecomplete.is-busy .simplecomplete__input-field {
   border-color: #FF64B1;
 }
 .simplecomplete.is-busy .simplecomplete__results-list {
@@ -317,6 +351,6 @@
   margin-top: 0.6em;
   margin-bottom: 0.4em;
 }
-.simplecomplete:not(.has-results) .simplecomplete__results {
-  display: none;
+.simplecomplete.active .simplecomplete__results {
+  display: block;
 }

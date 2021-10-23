@@ -4,7 +4,6 @@
 	<title>🦄 simplecomplete 👌</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="./simplecomplete.js"></script>
 	<link rel="stylesheet" href="./min/simplecomplete.min.css" />
 	<style type="text/css">
 		@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
@@ -20,15 +19,17 @@
 			padding:  0;
 			margin:  0;
 			box-sizing:  border-box;
+			background:  #F6F6F6;
 		}
 
-		body {
-			display:  flex;
-			flex-flow:  column nowrap;
-			justify-content:  center;
-			align-items:  center;
-			background:  #F6F6F6;
-			overflow-y:  auto;
+		@media screen and (min-width:  992px) {
+			body {
+				display:  flex;
+				flex-flow:  column nowrap;
+				justify-content:  center;
+				align-items:  center;
+				overflow-y:  auto;
+			}
 		}
 
 		h1 {
@@ -39,6 +40,7 @@
 			width:  80vw;
 			background:  white;
 			padding:  2rem;
+			margin:  1em auto;
 			border-radius:  1em;
 			box-shadow:  0 .125em .25em rgba(0,0,0,.1);
 		}
@@ -50,8 +52,8 @@
 		<h2>Just a search... but cool.</h2>
 		<input type="text" data-sc="https://gorest.co.in/public/v1/users" data-param="name" />
 
-		<h2>A fake User Search just add the endpoint and the param name</h2>
-		<select data-sc="https://gorest.co.in/public/v1/users" data-param="name">
+		<h2>a simple select without an external source</h2>
+		<select data-sc>
 			<option value="ajin" selected>Ajin</option>
 			<option value="slump">Dr. Slump</option>
 			<option value="chobits">Chobits</option>
@@ -64,12 +66,16 @@
 			<option value="naruto">Naruto</option>
 		</select>
 
+		<h2>A fake User Search just add the endpoint and the param name</h2>
+		<select data-sc="https://gorest.co.in/public/v1/users" data-param="name"></select>
+
 		<h2>Hello World...</h2>
-		<select multiple="true" id="multiple-select" data-sc="https://gorest.co.in/public/v1/users" data-param="name">
+		<select multiple="true" id="multiple-select" data-sc="https://api.github.com/search/repositories?per_page=5" data-param="q">
 			<option>Option A</option>
 			<option selected>Option B</option>
 			<option selected>Option C</option>
 		</select>
 	</div>
+	<script src="./min/simplecomplete.min.js"></script>
 </body>
 </html>
